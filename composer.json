@@ -1,5 +1,5 @@
 {
-    "name": "katsukii/Cakephp2_AWS_S3_DataSource",
+    "name": "katsukii/cakephp2_aws_s3_datasource",
     "type": "cakephp-plugin",
     "description": "CakePHP Plugin",
     "keywords": [],
