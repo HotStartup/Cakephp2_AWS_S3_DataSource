@@ -17,26 +17,26 @@ class S3 extends DataSource {
 	public $S3 = '';
 	public $bucketName = '';
 	public $region = Region::AP_NORTHEAST_1;
-	
+
 	public function __construct($config = array(), $autoConnect = true){
 		parent::__construct($config);
 		$config['region'] = $this->region;
 		$this->S3 = S3Client::factory($config);
 		$this->bucketName = $config['bucket_name'];
 	}
-	
+
 	public function listSources($data = null) {
 		return null;
 	}
-	
+
 	public function describe($model) {
 		return array();
 	}
-	
+
 	public function calculate(Model $model, $func, $params = array()) {
 		return 'COUNT';
 	}
-	
+
 /**
  * AWS S3へファイルをアップロードする
  *
@@ -45,11 +45,11 @@ class S3 extends DataSource {
  * @return mixed
  */
 	protected function putFile($srcFilePath, $dstFilePath) {
-		
+
 		if (!file_exists($srcFilePath)) {
 			return false;
 		}
-		
+
 		// 行頭にスラッシュが入っていた場合は消す
 		$dstFilePath = preg_replace("/^\/(.+)$/", "$1", $dstFilePath);
 
@@ -79,7 +79,7 @@ class S3 extends DataSource {
  * @return mixed
  */
 	protected function deleteFile($filePath) {
-		
+
 		// 行頭にスラッシュが入っていた場合は消す
 		$filePath = preg_replace("/^\/(.+)$/", "$1", $filePath);
 
@@ -104,7 +104,7 @@ class S3 extends DataSource {
  * @return mixed
  */
 	protected function moveFile($srcFilePath, $dstFilePath) {
-		
+
 		// 行頭にスラッシュが入っていた場合は消す
 		$srcFilePath = preg_replace("/^\/(.+)$/", "$1", $srcFilePath);
 		$dstFilePath = preg_replace("/^\/(.+)$/", "$1", $dstFilePath);
@@ -122,9 +122,9 @@ class S3 extends DataSource {
 		}
 
 		$this->deleteFile($srcFilePath);
-		
+
 		return true;
-		
+
 	}
 
 /**
@@ -135,7 +135,7 @@ class S3 extends DataSource {
  * @return mixed
  */
 	protected function copyFile($srcFilePath, $dstFilePath) {
-		
+
 		// 行頭にスラッシュが入っていた場合は消す
 		$srcFilePath = preg_replace("/^\/(.+)$/", "$1", $srcFilePath);
 		$dstFilePath = preg_replace("/^\/(.+)$/", "$1", $dstFilePath);
@@ -151,11 +151,35 @@ class S3 extends DataSource {
 			CakeLog::error('AWS S3 [copyObject]: ' . $exc->getMessage());
 			return false;
 		}
-		
+
 		return true;
-		
+
 	}
-	
+
+	/**
+	 * AWS 指定したディレクトリのファイル一覧を取得する
+	 *
+	 * @param string $dirName
+	 * @return mixed
+	 */
+		protected function getFiles($dirName = null) {
+			// 行頭にスラッシュが入っていた場合は消す
+			$dirName = preg_replace("/^\/(.+)$/", "$1", $dirName);
+
+			try {
+				$result = $this->S3->listObjects(array(
+						'Bucket' => $this->bucketName,
+						'Prefix' => $dirName
+					));
+			} catch (S3Exception $exc) {
+				CakeLog::error('AWS S3 [putObject]: ' . $exc->getMessage());
+				return false;
+			}
+			if (isset($result['Contents'])) {
+				return $result['Contents'];
+			}
+			return false;
+		}
 
 /**
  * AWS S3への操作クエリ
@@ -165,7 +189,7 @@ class S3 extends DataSource {
  * @return mixed
  */
 	public function query($method, $query = array()) {
-	
+
 		switch ($method) {
 			case 'putFile':
 				if (isset($query['0']) && isset($query['1'])) {
@@ -187,9 +211,10 @@ class S3 extends DataSource {
 					return $this->copyFile($query['0'], $query['1']);
 				}
 				break;
+			case 'getFiles':
+				return $this->getFiles($query['0']);
 			default:
 				break;
 		}
-		
 	}
 }
