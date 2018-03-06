@@ -16,11 +16,9 @@ class S3 extends DataSource {
 	public $description = 'AmazonWebServices S3 File Controller';
 	public $S3 = '';
 	public $bucketName = '';
-	public $region = Region::AP_NORTHEAST_1;
 
 	public function __construct($config = array(), $autoConnect = true){
 		parent::__construct($config);
-		$config['region'] = $this->region;
 		$this->S3 = S3Client::factory($config);
 		$this->bucketName = $config['bucket_name'];
 	}
