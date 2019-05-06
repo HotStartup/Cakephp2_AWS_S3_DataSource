@@ -42,7 +42,7 @@ class S3 extends DataSource {
  * @param string $dstFilePath アップロード先の絶対パス
  * @return mixed
  */
-	protected function putFile($srcFilePath, $dstFilePath) {
+	protected function putFile($srcFilePath, $dstFilePath, $contentType = null) {
 
 		if (!file_exists($srcFilePath)) {
 			return false;
@@ -52,12 +52,16 @@ class S3 extends DataSource {
 		$dstFilePath = preg_replace("/^\/(.+)$/", "$1", $dstFilePath);
 
 		try {
-			$result = $this->S3->putObject(array(
-					'Bucket' => $this->bucketName,
-					'Key' => $dstFilePath,
-					'Body' => EntityBody::factory(fopen($srcFilePath, 'r')),
-					'ACL' => CannedAcl::PUBLIC_READ,
-				));
+			$params = [
+				'Bucket' => $this->bucketName,
+				'Key' => $dstFilePath,
+				'Body' => EntityBody::factory(fopen($srcFilePath, 'r')),
+				'ACL' => CannedAcl::PUBLIC_READ,
+			];
+			if(!empty($contentType)) {
+				$params['ContentType'] = $contentType;
+			}
+			$result = $this->S3->putObject($params);
 		} catch (S3Exception $exc) {
 			CakeLog::error('AWS S3 [putObject]: ' . $exc->getMessage());
 			return false;
@@ -191,6 +195,9 @@ class S3 extends DataSource {
 		switch ($method) {
 			case 'putFile':
 				if (isset($query['0']) && isset($query['1'])) {
+					if(!empty($query['2'])) {
+						return $this->putFile($query['0'], $query['1'], $query['2']);
+					}
 					return $this->putFile($query['0'], $query['1']);
 				}
 				break;
