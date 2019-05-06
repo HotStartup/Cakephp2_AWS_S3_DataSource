@@ -52,15 +52,15 @@ class S3 extends DataSource {
 		$dstFilePath = preg_replace("/^\/(.+)$/", "$1", $dstFilePath);
 
 		try {
-      $params = [
-        'Bucket' => $this->bucketName,
-        'Key' => $dstFilePath,
-        'Body' => EntityBody::factory(fopen($srcFilePath, 'r')),
-        'ACL' => CannedAcl::PUBLIC_READ,
-      ];
-      if(!empty($contentType)) { 
-        $params['ContentType'] = $contentType;
-      }
+			$params = [
+				'Bucket' => $this->bucketName,
+				'Key' => $dstFilePath,
+				'Body' => EntityBody::factory(fopen($srcFilePath, 'r')),
+				'ACL' => CannedAcl::PUBLIC_READ,
+			];
+			if(!empty($contentType)) {
+				$params['ContentType'] = $contentType;
+			}
 			$result = $this->S3->putObject($params);
 		} catch (S3Exception $exc) {
 			CakeLog::error('AWS S3 [putObject]: ' . $exc->getMessage());
