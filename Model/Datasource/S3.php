@@ -195,6 +195,9 @@ class S3 extends DataSource {
 		switch ($method) {
 			case 'putFile':
 				if (isset($query['0']) && isset($query['1'])) {
+					if(!empty($query['2'])) {
+						return $this->putFile($query['0'], $query['1'], $query['2']);
+					}
 					return $this->putFile($query['0'], $query['1']);
 				}
 				break;
