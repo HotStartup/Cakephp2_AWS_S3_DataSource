@@ -1,15 +1,15 @@
 {
-    "name": "katsukii/cakephp2_aws_s3_datasource",
+    "name": "peraichi/cakephp2_aws_s3_datasource",
     "type": "cakephp-plugin",
     "description": "CakePHP Plugin",
     "keywords": [],
-    "homepage": "https://github.com/katsukii/Cakephp2_AWS_S3_DataSource",
+    "homepage": "https://github.com/HotStartup/Cakephp2_AWS_S3_DataSource",
     "version": "0.0.1",
     "license": "MIT",
     "authors": [
         {
-            "name": "Yusuke Katsuki",
-            "email": "katsuki.yusuke@gmail.com"
+            "name": "peraichi",
+            "email": "dev@peraichi.co.jp"
         }
     ],
     "require": {
